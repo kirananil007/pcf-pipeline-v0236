@@ -327,6 +327,7 @@ resources:
     sort_by: semver
   type: pivnet
 - name: pcf-pipelines
+  type: git
   source:
     uri: https://github.com/kirananil007/pcf-restore-v0236.git
     branch: master
