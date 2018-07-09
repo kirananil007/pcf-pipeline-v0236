@@ -38,7 +38,7 @@ jobs:
         args:
         - -c
         - |
-          ami=$(grep $REGION pivnet-opsmgr/*.yml | cut -d' ' -f2)
+          ami=$(grep $REGION pivnet-opsmgr/*.yml | cut -d ' ' -f2)
           echo $ami > ami/ami
         path: bash
     params:
