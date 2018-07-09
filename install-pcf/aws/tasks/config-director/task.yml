@@ -29,4 +29,9 @@ params:
   dynamic_services_subnet_reserved_ranges_z3:
   infra_subnet_reserved_ranges_z1:
 run:
-  path: pcf-pipelines/install-pcf/aws/tasks/config-director/task.sh
+  path: /bin/sh
+  args:
+  - -c
+  - |
+    chmod +x pcf-pipelines/install-pcf/aws/tasks/config-director/task.sh
+    ./pcf-pipelines/install-pcf/aws/tasks/config-director/task.sh

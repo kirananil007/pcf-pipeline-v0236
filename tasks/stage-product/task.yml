@@ -34,4 +34,9 @@ params:
   OPSMAN_DOMAIN_OR_IP_ADDRESS:
 
 run:
-  path: pcf-pipelines/tasks/stage-product/task.sh
+  path: /bin/sh
+  args:
+  - -c
+  - |
+    chmod +x pcf-pipelines/tasks/stage-product/task.sh
+    ./pcf-pipelines/tasks/stage-product/task.sh

@@ -32,4 +32,10 @@ params:
   AWS_SECRET_ACCESS_KEY:
 
 run:
-  path: pcf-pipelines/tasks/create-initial-terraform-state/task.sh
+  path: /bin/sh
+  args:
+  - -c
+  - |
+    cd pcf-pipelines/tasks/create-initial-terraform-state/
+    chmod +x task.sh
+    ./task.sh

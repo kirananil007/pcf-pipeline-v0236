@@ -21,4 +21,9 @@ params:
   ERRANDS_TO_DISABLE:
 
 run:
-  path: pcf-pipelines/tasks/disable-errands/task.sh
+  path: /bin/sh
+  args:
+  - -c
+  - |
+    chmod +x pcf-pipelines/tasks/disable-errands/task.sh
+    ./pcf-pipelines/tasks/disable-errands/task.sh
