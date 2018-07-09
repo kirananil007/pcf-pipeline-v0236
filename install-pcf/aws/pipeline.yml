@@ -1,25 +1,7 @@
 jobs:
 - name: bootstrap-terraform-state
   plan:
-  - do:
-    - get: pcf-pipelines-tarball
-    - config:
-        image_resource:
-          source:
-            repository: pcfnorm/rootfs
-            tag: 1.0.15
-          type: docker-image
-        inputs:
-        - name: pcf-pipelines-tarball
-        outputs:
-        - name: pcf-pipelines
-        platform: linux
-        run:
-          args:
-          - -c
-          - tar -xvf pcf-pipelines-tarball/*.tgz
-          path: bash
-      task: unpack-tarball
+  - get: pcf-pipelines
   - file: pcf-pipelines/tasks/create-initial-terraform-state/task.yml
     params:
       AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
@@ -33,25 +15,7 @@ jobs:
 - name: create-infrastructure
   plan:
   - aggregate:
-    - do:
-      - get: pcf-pipelines-tarball
-      - config:
-          image_resource:
-            source:
-              repository: pcfnorm/rootfs
-              tag: 1.0.15
-            type: docker-image
-          inputs:
-          - name: pcf-pipelines-tarball
-          outputs:
-          - name: pcf-pipelines
-          platform: linux
-          run:
-            args:
-            - -c
-            - tar -xvf pcf-pipelines-tarball/*.tgz
-            path: bash
-        task: unpack-tarball
+    - get: pcf-pipelines
     - get: terraform-state
     - get: pivnet-opsmgr
       params:
@@ -159,25 +123,7 @@ jobs:
 - name: configure-director
   plan:
   - aggregate:
-    - do:
-      - get: pcf-pipelines-tarball
-      - config:
-          image_resource:
-            source:
-              repository: pcfnorm/rootfs
-              tag: 1.0.15
-            type: docker-image
-          inputs:
-          - name: pcf-pipelines-tarball
-          outputs:
-          - name: pcf-pipelines
-          platform: linux
-          run:
-            args:
-            - -c
-            - tar -xvf pcf-pipelines-tarball/*.tgz
-            path: bash
-        task: unpack-tarball
+    - get: pcf-pipelines
     - get: terraform-state
       passed:
       - create-infrastructure
@@ -215,25 +161,7 @@ jobs:
 - name: deploy-director
   plan:
   - aggregate:
-    - do:
-      - get: pcf-pipelines-tarball
-      - config:
-          image_resource:
-            source:
-              repository: pcfnorm/rootfs
-              tag: 1.0.15
-            type: docker-image
-          inputs:
-          - name: pcf-pipelines-tarball
-          outputs:
-          - name: pcf-pipelines
-          platform: linux
-          run:
-            args:
-            - -c
-            - tar -xvf pcf-pipelines-tarball/*.tgz
-            path: bash
-        task: unpack-tarball
+    - get: pcf-pipelines
     - get: terraform-state
       passed:
       - configure-director
@@ -251,29 +179,11 @@ jobs:
 - name: upload-ert
   plan:
   - aggregate:
-    - do:
-      - get: pcf-pipelines-tarball
-      - config:
-          image_resource:
-            source:
-              repository: pcfnorm/rootfs
-              tag: 1.0.15
-            type: docker-image
-          inputs:
-          - name: pcf-pipelines-tarball
-          outputs:
-          - name: pcf-pipelines
-          platform: linux
-          run:
-            args:
-            - -c
-            - tar -xvf pcf-pipelines-tarball/*.tgz
-            path: bash
-        task: unpack-tarball
+    - get: pcf-pipelines
     - get: pivnet-product
       params:
         globs:
-        - cf*.pivotal
+        - srt*.pivotal
       resource: pivnet-elastic-runtime
     - get: terraform-state
       passed:
@@ -304,25 +214,7 @@ jobs:
 - name: deploy-ert
   plan:
   - aggregate:
-    - do:
-      - get: pcf-pipelines-tarball
-      - config:
-          image_resource:
-            source:
-              repository: pcfnorm/rootfs
-              tag: 1.0.15
-            type: docker-image
-          inputs:
-          - name: pcf-pipelines-tarball
-          outputs:
-          - name: pcf-pipelines
-          platform: linux
-          run:
-            args:
-            - -c
-            - tar -xvf pcf-pipelines-tarball/*.tgz
-            path: bash
-        task: unpack-tarball
+    - get: pcf-pipelines
     - get: terraform-state
       passed:
       - upload-ert
@@ -409,46 +301,7 @@ jobs:
       OPSMAN_PASSWORD: {{opsman_admin_password}}
       OPSMAN_USERNAME: {{opsman_admin_username}}
     task: deploy-ert
-  serial_groups:
-  - opsman
-- ensure:
-    params:
-      file: terraform-state/terraform.tfstate
-    put: terraform-state
-  name: wipe-env
-  plan:
-  - aggregate:
-    - do:
-      - get: pcf-pipelines-tarball
-      - config:
-          image_resource:
-            source:
-              repository: pcfnorm/rootfs
-              tag: 1.0.15
-            type: docker-image
-          inputs:
-          - name: pcf-pipelines-tarball
-          outputs:
-          - name: pcf-pipelines
-          platform: linux
-          run:
-            args:
-            - -c
-            - tar -xvf pcf-pipelines-tarball/*.tgz
-            path: bash
-        task: unpack-tarball
-    - get: terraform-state
-  - file: pcf-pipelines/install-pcf/aws/tasks/wipe-env/task.yml
-    params:
-      AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
-      AWS_REGION: {{aws_region}}
-      AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
-      OPSMAN_DOMAIN_OR_IP_ADDRESS: {{opsman_domain_or_ip_address}}
-      OPSMAN_PASSWORD: {{opsman_admin_password}}
-      OPSMAN_USERNAME: {{opsman_admin_username}}
-    task: wipe
-  serial_groups:
-  - terraform
+
 resource_types:
 - name: pivnet
   source:
@@ -473,12 +326,10 @@ resources:
     product_version: {{ert_major_minor_version}}
     sort_by: semver
   type: pivnet
-- name: pcf-pipelines-tarball
+- name: pcf-pipelines
   source:
-    api_token: {{pivnet_token}}
-    product_slug: pcf-automation
-    product_version: v0.23.6
-  type: pivnet
+    uri: https://github.com/kirananil007/pcf-restore-v0236.git
+    branch: master
 - name: pivnet-opsmgr
   source:
     api_token: {{pivnet_token}}
