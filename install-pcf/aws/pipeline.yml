@@ -329,7 +329,7 @@ resources:
 - name: pcf-pipelines
   type: git
   source:
-    uri: https://github.com/kirananil007/pcf-restore-v0236.git
+    uri: https://github.com/kirananil007/pcf-pipeline-v0236.git
     branch: master
 - name: pivnet-opsmgr
   source:
